@@ -1143,6 +1143,7 @@
         }
     </style>
     <!-- Monetag ad code will be inserted here -->
+    <!-- আপনার Monetag বিজ্ঞাপন কোড এখানে পেস্ট করুন -->
     <script src='//libtl.com/sdk.js' data-zone='10064725' data-sdk='show_10064725'></script>
 </head>
 <body>
@@ -1779,72 +1780,28 @@
             // বিজ্ঞাপন দেখুন বাটন ক্লিক ইভেন্ট
             document.getElementById('watchAdBtn').addEventListener('click', function() {
                 // Monetag বিজ্ঞাপন দেখানোর জন্য এখানে কোড যোগ করুন
+                // উদাহরণস্বরূপ, একটি পপ-আপ বা ইন্টারস্টিশিয়াল বিজ্ঞাপন লোড করুন
                 // এটি Monetag এর SDK দ্বারা নিয়ন্ত্রিত হবে।
                 // বিজ্ঞাপন শেষ হওয়ার পর এই ফাংশনটি কল করা উচিত:
                 
-                // Show Monetag ad
-                if (typeof Monetag !== 'undefined' && typeof Monetag.showAd === 'function') {
-                    Monetag.showAd().then(function() {
-                        // Ad shown successfully (this callback might not mean the user actually completed it)
-                        showNotification('বিজ্ঞাপন লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...');
-                        
-                        // Simulate ad completion and then giving bonus after a delay
-                        setTimeout(() => {
-                            const lastAdDate = localStorage.getItem(`last_ad_view_${userData.id}`);
-                            const today = new Date().toDateString();
-
-                            if (lastAdDate !== today) {
-                                userData.balance += 20;
-                                saveUserData();
-                                updateUserInterface();
-                                localStorage.setItem(`last_ad_view_${userData.id}`, today); // Mark ad as viewed for today
-                                showNotification('📺 বিজ্ঞাপন দেখার জন্য ধন্যবাদ! ২০ টাকা যোগ করা হয়েছে।');
-                            } else {
-                                showNotification('আপনি আজকের বিজ্ঞাপনটি ইতিমধ্যে দেখে ফেলেছেন। আগামীকাল আবার চেষ্টা করুন।');
-                            }
-                        }, 3000); // Simulate 3 second ad duration
-                    }).catch(function(error) {
-                        console.error("Monetag ad failed to show:", error);
-                        showNotification('বিজ্ঞাপন লোড হতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
-                    });
-                } else {
-                    console.warn("Monetag SDK or showAd function not available.");
-                    showNotification('বিজ্ঞাপন লোড হতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
-                    
-                    // Fallback for testing if Monetag is not fully loaded
-                    setTimeout(() => {
-                        const lastAdDate = localStorage.getItem(`last_ad_view_${userData.id}`);
-                        const today = new Date().toDateString();
-
-                        if (lastAdDate !== today) {
-                            userData.balance += 20;
-                            saveUserData();
-                            updateUserInterface();
-                            localStorage.setItem(`last_ad_view_${userData.id}`, today); // Mark ad as viewed for today
-                            showNotification('📺 বিজ্ঞাপন দেখার জন্য ধন্যবাদ! ২০ টাকা যোগ করা হয়েছে।');
-                        } else {
-                            showNotification('আপনি আজকের বিজ্ঞাপনটি ইতিমধ্যে দেখে ফেলেছেন। আগামীকাল আবার চেষ্টা করুন।');
-                        }
-                    }, 3000); // Simulate 3 second ad duration
-                }
+                // simulate ad loading and then giving bonus
+                showNotification('বিজ্ঞাপন লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...');
+                
+                setTimeout(() => {
+                    userData.balance += 20;
+                    saveUserData();
+                    updateUserInterface();
+                    showNotification('📺 বিজ্ঞাপন দেখার জন্য ধন্যবাদ! ২০ টাকা যোগ করা হয়েছে।');
+                    // এখানে Monetag এর ক্লোজ বাটন ফাংশনালিটি বা বিজ্ঞাপনের শেষ হলে কলব্যাক যুক্ত হবে।
+                }, 3000); // 3 সেকেন্ড পর বোনাস যোগ করার সিমুলেশন
             });
             
             // টেলিগ্রাম চ্যানেল ওপেন বাটন ফাংশন
-            function setupTelegramButtons(openBtnId, claimBtnId, messageBoxId, channelLink, taskKey) {
+            function setupTelegramButtons(openBtnId, claimBtnId, messageBoxId, channelLink) {
                 const openBtn = document.getElementById(openBtnId);
                 const claimBtn = document.getElementById(claimBtnId);
                 const messageBox = document.getElementById(messageBoxId);
                 
-                // Load task status from local storage
-                const taskStatus = JSON.parse(localStorage.getItem(`task_status_${userData.id}`) || '{}');
-                if (taskStatus[taskKey]) {
-                    claimBtn.classList.add('claimed');
-                    claimBtn.disabled = true;
-                    messageBox.textContent = '✅ টাস্ক সফলভাবে সম্পন্ন হয়েছে!';
-                    messageBox.className = 'message-box success-message';
-                    messageBox.style.display = 'block';
-                }
-
                 openBtn.addEventListener('click', function() {
                     window.open(channelLink, '_blank');
                 });
@@ -1852,13 +1809,6 @@
                 claimBtn.addEventListener('click', function() {
                     const button = this;
                     
-                    if (button.classList.contains('claimed')) {
-                        messageBox.textContent = 'আপনি ইতিমধ্যেই এই টাস্কটি সম্পন্ন করেছেন।';
-                        messageBox.className = 'message-box error-message';
-                        messageBox.style.display = 'block';
-                        return;
-                    }
-
                     // চেকিং মেসেজ দেখান
                     messageBox.textContent = 'চেক করা হচ্ছে...';
                     messageBox.className = 'message-box checking-message';
@@ -1866,25 +1816,26 @@
                     
                     // ২ সেকেন্ড পর রেজাল্ট দেখান
                     setTimeout(() => {
-                        // For a real Telegram Web App, you'd send this to a backend
-                        // to verify user's channel membership using Telegram Bot API.
-                        // Since this is client-side only, we'll simulate success.
-                        const isJoined = Math.random() > 0.3; // 70% chance of success for demonstration
+                        // এখানে বাস্তব চেকিং কোড যুক্ত হবে (যেমন: টেলিগ্রাম API ব্যবহার করে ইউজার চ্যানেলে আছে কিনা চেক করা)
+                        // যেহেতু এটি ক্লায়েন্ট-সাইড কোড, তাই এখানে বাস্তব চেকিং সম্ভব নয়।
+                        // এর জন্য একটি ব্যাকএন্ড সার্ভিস প্রয়োজন।
+                        // আপাতত একটি সিমুলেশন দিচ্ছি।
+                        const isJoined = Math.random() > 0.5; // ৫০% সম্ভাবনা জয়েন করার
                         
                         if (isJoined) {
-                            userData.balance += 200; // উদাহরণস্বরূপ
-                            saveUserData();
-                            updateUserInterface();
-                            showNotification('✅ টাস্ক সফল! ২০০ টাকা যোগ করা হয়েছে।');
-                            button.classList.add('claimed');
-                            button.disabled = true;
-                            
-                            // Save task status to local storage
-                            taskStatus[taskKey] = true;
-                            localStorage.setItem(`task_status_${userData.id}`, JSON.stringify(taskStatus));
-
-                            messageBox.textContent = '✅ টাস্ক সফলভাবে সম্পন্ন হয়েছে!';
-                            messageBox.className = 'message-box success-message';
+                            if (!button.classList.contains('claimed')) {
+                                userData.balance += 200; // উদাহরণস্বরূপ
+                                saveUserData();
+                                updateUserInterface();
+                                showNotification('✅ টাস্ক সফল! ২০০ টাকা যোগ করা হয়েছে।');
+                                button.classList.add('claimed');
+                                button.disabled = true;
+                                messageBox.textContent = '✅ টাস্ক সফলভাবে সম্পন্ন হয়েছে!';
+                                messageBox.className = 'message-box success-message';
+                            } else {
+                                messageBox.textContent = 'আপনি ইতিমধ্যেই এই টাস্কটি সম্পন্ন করেছেন।';
+                                messageBox.className = 'message-box error-message';
+                            }
                         } else {
                             messageBox.textContent = 'টাস্ক সম্পন্ন হয়নি অথবা আপনি চ্যানেলে জয়েন করেননি।';
                             messageBox.className = 'message-box error-message';
@@ -1894,15 +1845,14 @@
             }
             
             // ৪টি টেলিগ্রাম চ্যানেল সেটআপ (আপনার প্রকৃত লিংক দিন)
-            const TELEGRAM_CHANNEL_LINK = 'https://t.me/minicatuser_bot'; // Shared Telegram channel link
-            setupTelegramButtons('openTelegram1Btn', 'claimTelegram1Btn', 'telegram1Message', TELEGRAM_CHANNEL_LINK, 'telegram_task_1');
-            setupTelegramButtons('openTelegram2Btn', 'claimTelegram2Btn', 'telegram2Message', TELEGRAM_CHANNEL_LINK, 'telegram_task_2');
-            setupTelegramButtons('openTelegram3Btn', 'claimTelegram3Btn', 'telegram3Message', TELEGRAM_CHANNEL_LINK, 'telegram_task_3');
-            setupTelegramButtons('openTelegram4Btn', 'claimTelegram4Btn', 'telegram4Message', TELEGRAM_CHANNEL_LINK, 'telegram_task_4');
+            setupTelegramButtons('openTelegram1Btn', 'claimTelegram1Btn', 'telegram1Message', 'https://t.me/money_hunt_6');
+            setupTelegramButtons('openTelegram2Btn', 'claimTelegram2Btn', 'telegram2Message', 'https://t.me/your_telegram_channel_2');
+            setupTelegramButtons('openTelegram3Btn', 'claimTelegram3Btn', 'telegram3Message', 'https://t.me/your_telegram_channel_3');
+            setupTelegramButtons('openTelegram4Btn', 'claimTelegram4Btn', 'telegram4Message', 'https://t.me/your_telegram_channel_4');
             
             // ইউটিউব চ্যানেল ওপেন বাটন
             document.getElementById('openYoutubeBtn').addEventListener('click', function() {
-                window.open('https://youtube.com', '_blank'); // আপনার ইউটিউব চ্যানেলের লিংক দিন
+                window.open('https://youtube.com/channel/your_youtube_channel_id', '_blank'); // আপনার ইউটিউব চ্যানেলের লিংক দিন
             });
             
             // ইউটিউব ক্লেইম বাটন
@@ -1910,16 +1860,6 @@
                 const button = this;
                 const messageBox = document.getElementById('youtubeMessage');
                 
-                const taskStatus = JSON.parse(localStorage.getItem(`task_status_${userData.id}`) || '{}');
-                const taskKey = 'youtube_task';
-
-                if (taskStatus[taskKey]) {
-                    messageBox.textContent = 'আপনি ইতিমধ্যেই এই টাস্কটি সম্পন্ন করেছেন।';
-                    messageBox.className = 'message-box error-message';
-                    messageBox.style.display = 'block';
-                    return;
-                }
-
                 // চেকিং মেসেজ দেখান
                 messageBox.textContent = 'চেক করা হচ্ছে...';
                 messageBox.className = 'message-box checking-message';
@@ -1928,22 +1868,22 @@
                 // ২ সেকেন্ড পর রেজাল্ট দেখান
                 setTimeout(() => {
                     // এখানে বাস্তব চেকিং কোড যুক্ত হবে
-                    const isSubscribed = Math.random() > 0.3; // 70% সম্ভাবনা সাবস্ক্রাইব করার
+                    const isSubscribed = Math.random() > 0.5; // ৫০% সম্ভাবনা সাবস্ক্রাইব করার
                     
                     if (isSubscribed) {
-                        userData.balance += 200; // উদাহরণস্বরূপ
-                        saveUserData();
-                        updateUserInterface();
-                        showNotification('✅ টাস্ক সফল! ২০০ টাকা যোগ করা হয়েছে।');
-                        button.classList.add('claimed');
-                        button.disabled = true;
-
-                        // Save task status to local storage
-                        taskStatus[taskKey] = true;
-                        localStorage.setItem(`task_status_${userData.id}`, JSON.stringify(taskStatus));
-
-                        messageBox.textContent = '✅ টাস্ক সফলভাবে সম্পন্ন হয়েছে!';
-                        messageBox.className = 'message-box success-message';
+                        if (!button.classList.contains('claimed')) {
+                            userData.balance += 200; // উদাহরণস্বরূপ
+                            saveUserData();
+                            updateUserInterface();
+                            showNotification('✅ টাস্ক সফল! ২০০ টাকা যোগ করা হয়েছে।');
+                            button.classList.add('claimed');
+                            button.disabled = true;
+                            messageBox.textContent = '✅ টাস্ক সফলভাবে সম্পন্ন হয়েছে!';
+                            messageBox.className = 'message-box success-message';
+                        } else {
+                            messageBox.textContent = 'আপনি ইতিমধ্যেই এই টাস্কটি সম্পন্ন করেছেন।';
+                            messageBox.className = 'message-box error-message';
+                        }
                     } else {
                         messageBox.textContent = 'টাস্ক সম্পন্ন হয়নি অথবা আপনি চ্যানেলে সাবস্ক্রাইব করেননি।';
                         messageBox.className = 'message-box error-message';
